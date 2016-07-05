@@ -6,6 +6,7 @@ comparing composition [React]() [Angular2]() [Choo]() [Cycle](). yada yada blah
 
 defininig the components etc etc
 
+![overview](overview.svg)
 
 ### React implementation
 
