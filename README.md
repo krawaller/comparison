@@ -1,25 +1,62 @@
-### Rationale
+### The premise
 
-comparing composition [React]() [Angular2]() [Choo]() [Cycle](). yada yada blah
+In this post we will compare how loosely coupled composition is done in [React]() [Angular2]() [Choo]() and [Cycle](). The setup is similar to the TodoMVC project, meaning we will implement the same application in all frameworks. Our app is however much smaller in scope than TodoMVC, and focused on the aspect of composition.
 
-### The app
+### The application
 
-definining the components etc etc
+The example application is a simple submission form. The flow is like thus:
 
-![overview](https://raw.githubusercontent.com/krawaller/comparison/master/overview.svg)
+1. Enter text in the field
+2. Click submit (and then comfirm)
+3. The latest submitted text is shown below the field.
+
+Try it out below!
+
+IFRAME
+
+The application is made up by two components - a child `Confirm` button, which is then used by the parent `Submission` component making up the form.
+
+The `Confirm` button has three different modes, which should be tracked in an internal **status** state:
+
+* Showing `Submit` but greyed out ("disabled")
+* Showing `Submit` ("waiting")
+* Showing `Cancel` and `Confirm`. ("confirm")
+
+Meanwhile the `Submission` component holds the current content of the **field**, as well as the latest **submission**.
+
+The `Submission` component needs to tell `Confirm` whether it is **disabled** (since `Confirm` doesn't know the contents of the field). `Submission` also listens for **submit** events from `Confirm`, to know when a submission is made.
+
+The state and communication can be expressed through the following diagram:
+
+![overview](img/overview.svg)
+
+We will now implement these two components in all four frameworks, and then discuss the comparison.
 
 ### React implementation
 
-Webpackbin [here](http://www.webpackbin.com/Ey70dIVI-)
+First out - React! You can find a webpackbin with the app running [here](http://www.webpackbin.com/Ey70dIVI-).
 
-Code for Confirm component:
+React's model is very simple - everything is made up by **components**, whose UI are the results of their internal **state** and the **properties** passed from the parent.
+
+![overview](img/reactcomp.svg)
+
+A parent talks to the child by passing props. If a child needs to be able to answer, we pass a *callback* prop which the child should call at the appropriate time.
+
+![overview](img/reactcommunication.svg)
+
+If we need more app-wide communication we might want to use something like [Redux](http://redux.js.org/) instead.
+
+#### The `Confirm` component in React
 
 ```typescript
 let Confirm = React.createClass({
   getInitialState: ()=> ({status:'waiting'}),
   maybe() { this.setState({status:'confirm'}) },
   changedmymind() { this.setState({status:'waiting'}) },
-  yesimsure() { this.props.confirm(); this.setState({status:'waiting'}) },
+  yesimsure() {
+    this.props.confirm();
+    this.setState({status:'waiting'})
+  },
   render() {
     return this.state.status !== 'confirm'
     ? <button onClick={this.maybe} disabled={this.props.disabled}>Submit</button>
@@ -31,31 +68,36 @@ let Confirm = React.createClass({
 })
 ```
 
-Code for Submission component:
+There's not much to note here. The `status` of the button is kept in state, while whether or not we're `disabled` is received as a prop from the parent. We also receive a `props.confirm` callback, which we call when the user confirms their submission.
+
+#### The `Submission` component in React
 
 ```typescript
 let Submission = React.createClass({
   getInitialState: ()=> ({submission:'',field:''}),
   onConfirm() { this.setState({submission:this.state.field,field:''}) },
   onChange(e) { this.setState({field:e.target.value}) },
-  render() {
-    return (
-      <div>
-        <input value={this.state.field} onChange={this.onChange}/>
-        <Confirm disabled={!this.state.field} confirm={this.onConfirm}/>
-        <p>Submitted value: {this.state.submission}</p>
-      </div>
-    )
-  }
+  render() { return (
+    <div>
+      <input value={this.state.field} onChange={this.onChange}/>
+      <Confirm disabled={!this.state.field} confirm={this.onConfirm}/>
+      <p>Submitted value: {this.state.submission}</p>
+    </div>
+  )}
 })
 ```
 
+We can see that `submission` and `field` is explicitly kept in state. We pass `disabled` and an `onConfirm` handler to the child.
 
-### Angular2 implementation:
+Note that we could opt to store `field` in the DOM node and read it in the `onConfirm` handler using a [ref](https://facebook.github.io/react/docs/more-about-refs.html). This however isn't considered as idiomatic. See more [here](https://facebook.github.io/react/docs/forms.html#uncontrolled-components).
 
-yada blah, Webpackbin [here](http://www.webpackbin.com/VkPFPSXL-)
+### Angular2 implementation
 
-Code for Confirm component:
+Now for the Angular2 implementation, which you can get in a webpackbin [here](http://www.webpackbin.com/VkPFPSXL-). Unlike it's predecessor, Angular2 is made up by composable components much like React.
+
+A component is made up by a decorator call containing template and other metadata, and a class for holding state and methods. Inputs and outputs are explicitly declared in these classes.
+
+#### The `Confirm` component in Angular2
 
 ```typescript
 @Component({
@@ -82,7 +124,10 @@ export class Confirm {
 }
 ```
 
-Code for submission component:
+The button status is stored in a `state` property in the class. We see that `disabled` is defined as a boolean `Input`, and that `confirm` is an EventEmitter `Output`. Angular2 uses [RxJS](http://reactivex.io/) streams for this.
+
+
+#### The `Submission` component in Angular2
 
 ```typescript
 @Component({
@@ -102,6 +147,8 @@ class Submission {
   }
 }
 ```
+
+Here we attach an `onConfirm` listener to the `confirm` output from the child component. Note that we don't store the `field` value in state, we leave this to the DOM and simply collect it when we need it using `ViewChild`.
 
 ### CycleJS implementation
 

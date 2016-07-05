@@ -1,0 +1,8 @@
+digraph {
+  rankdir = LR
+  bgcolor = transparent
+  parent -> prop -> child
+  child -> callback -> parent
+  {rank=same;prop,callback}
+  parent,child [shape=box]
+}

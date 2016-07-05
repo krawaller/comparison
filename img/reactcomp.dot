@@ -1,0 +1,7 @@
+digraph {
+  rankdir = LR
+  bgcolor = transparent
+  state -> component -> UI
+  props -> component
+  component [shape=box]
+}
