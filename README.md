@@ -4,9 +4,9 @@ comparing composition [React]() [Angular2]() [Choo]() [Cycle](). yada yada blah
 
 ### The app
 
-defininig the components etc etc
+definining the components etc etc
 
-![overview](overview.svg)
+![overview](./overview.svg?raw=true)
 
 ### React implementation
 
