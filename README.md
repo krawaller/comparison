@@ -2,7 +2,7 @@
 
 In this post we will compare how loosely coupled composition is done in [React](https://facebook.github.io/react/), [Angular2](https://angular.io), [Choo](https://github.com/yoshuawuyts/choo) and [Cycle](http://cycle.js.org/). The setup is similar to the TodoMVC project, meaning we will **implement the same application in all frameworks**. Our app is however much smaller in scope than TodoMVC, and focused on the aspect of composition.
 
-I (David) wrote this in collaboration with the talented fellow JS-nerd [Mattias](), who wrote the Choo version and got me interested in that framework. I hope to lure him into doing more writing here in the future!
+I (David) wrote this in collaboration with the talented fellow JS-nerd [Mattias](https://github.com/mw222rs/), who wrote the Choo version and got me interested in that framework. I hope to lure him into doing more writing here in the future!
 
 ### The application
 
@@ -33,6 +33,8 @@ The state and communication can be expressed through the following diagram:
 ![overview](img/overview.svg)
 
 We will now implement these two components in all four frameworks, and then discuss the comparison. The main rule will be that `Confirm` should be decoupled enough to be reusable in a completely different app.
+
+All of the code can be found on [GitHub](https://github.com/krawaller/comparison) as well as in the Webpackbins linked in each chapter. 
 
 ### React implementation
 
@@ -174,7 +176,7 @@ We will implement our app following the [Model-View-Intent](http://cycle.js.org/
 1.   That `state` is given to the `view` function which translates it to **virtual DOM**, often called `vtree`
 1.   Finally we return the `vtree` as part of the `sinks`, maybe coupled with other stuff from `actions` and `state` that are of interest to the outside world.
 
-The Webpackbin for this implementation can be found at [http://www.webpackbin.com/NJD02H4L-](http://www.webpackbin.com/NJD02H4L-).
+The Webpackbin for this implementation can be found at [http://www.webpackbin.com/VJZkw6SUZ](http://www.webpackbin.com/VJZkw6SUZ).
 
 #### The `Confirm` component in CycleJS
 
@@ -189,13 +191,13 @@ const intent = sources=> xs.merge(
 const model = action$ => action$.fold((s,action)=> {
   switch(action){
     case 'DISABLE': return 'disabled'
-    case 'MAYBE': return 'areyousure'
+    case 'MAYBE': return 'confirm'
     case 'ENABLE': return s === 'disabled' ? 'waiting' : s
     default: return 'waiting'
   }
 },'disabled')
 
-const view = state$ => state$.map(state=> state === 'areyousure'
+const view = state$ => state$.map(state=> state === 'confirm'
   ? span([button('.confirm','Confirm'),button('.cancel','Cancel')])
   : button('.maybe',{attrs:{disabled: state === 'disabled'}},'Submit')
 )
@@ -213,7 +215,7 @@ const Confirm = sources=> {
 
 Note how we assume `disabled$` to exist among `sources`, which needs to be provided by the parent. The `intent` function doesn't separate local and foreign events - we get a stream containing `DISABLE` and `ENABLE` from the parent, jumbled with the local events `MAYBE`, `CANCEL` and `CONFIRM`.
 
-The `model` function returns a single string as state, namely which mode the button is in - `disabled`, `waiting` or `areyousure`.
+The `model` function returns a single string as state, namely which mode the button is in - `disabled`, `waiting` or `confirm`.
 
 
 #### The `Submission` component in CycleJS
@@ -270,17 +272,17 @@ The `model` function derives a state object containing `field` and `submission`,
 
 Last but not least, here is the Choo implementation! It is running in a Webpackbin at [http://www.webpackbin.com/4y4Mt94UZ](http://www.webpackbin.com/4y4Mt94UZ).
 
-Choo is a new and tiny framework, but bla bla bla Mattias, go! :D
+If CycleJS is the most exotic of our four frameworks, Choo is definitely the newest of the bunch with its first commit only a month ago. Choo is tiny, weighing in at only 7kb and with a small, easy-to-learn API. I (Mattias) kind of think of it as a shrunken down react-redux app with pink sparkles and strawberry frosting. It's darn cute.
 
 In Choo it is common to have an app-wide `model`, very similar to Redux' role in React. But according to our self-imposed rules the components should be stand-alone and reusable, and so must contain their own model definitions! We accomplish this by defining the components in constructors which you pass the `app` object to, so each component can register the model parts they need.
 
-A Choo `model` definition consists of `state`, `reducers` to manipulate that state, and `effects` for side effects. The actual component is then just a pure function that receives the application `state`, a `send` method for triggering effects and reducers, and whatever else you want to pass in. The component function returns virtual DOM for rendering.
+A Choo `model` definition consists of `state`, `reducers` to manipulate that state, and `effects` for side effects. If the optonal `namespace` property is set the reducers and effects can only access the state within its own model to provide, as the documentation puts it, 'sturdiness'. The actual component is then just a pure function that receives the application `state`, a `send` method for triggering effects and reducers, and whatever else you want to pass in. The component function returns DOM nodes for rendering, but unlike the other three frameworks Choo does not use virtual DOM nodes, but instead uses [morphdom](https://github.com/patrick-steele-idem/morphdom) to diff real DOM nodes. 
 
 Note that we are using Choo version `2.3.1`, but `3.0.0` [just came out](https://github.com/yoshuawuyts/choo/blob/master/CHANGELOG.md#300). We'll hopefully take a look at what has changed in an upcoming, all-choo post!
 
 #### The `Confirm` component in Choo
 
-```typescript
+```javascript
 const Confirm = (app,confirmevent)=> {
   app.model({
     namespace: 'confButt',
@@ -309,16 +311,15 @@ const Confirm = (app,confirmevent)=> {
 }
 ```
 
-The constructor is given the `app` object, and the name of the event to trigger when the user has confirmed the action (`confirmSubmit`). Our model also defines the local events `maybeSubmit` and `cancelSubmit`. Together these three change the value of the only state variable, `status`, which can be `waiting` or `areyousure`. Whether or not we are disabled is passed as an argument to the renderer.
+The constructor is given the `app` object, and the name of the event to trigger when the user has confirmed the action (`confirmSubmit`). Our model also defines the local events `maybeSubmit` and `cancelSubmit`. Together these three change the value of the only state variable, `status`, which can be `waiting` or `confirm`. Whether or not we are disabled is passed as an argument to the renderer.
 
-In a perfect world this component should only be given it's part of the app state, but for that to be possible we must leak the namespace name to the parent.
-
+In a perfect world this component should only be given its part of the app state, but for that to be possible we must leak the namespace name to the parent.
 
 
 
 #### The `Submission` component in Choo
 
-```typescript
+```javascript
 const Submission = app => {
   const confirm = Confirm(app,'sub:submit')
   app.model({
@@ -342,7 +343,7 @@ const Submission = app => {
 }
 ```
 
-The state for `Submission` contains the by now familiar `field` and `submission`. There are only two events, `setField` and `submit`. The latter is given to the child constructor (`sub:submit`) to be triggered from there.
+The state for `Submission` contains the by now familiar `field` and `submission`. There are only two actions, `setField` and `submit`. The latter is given to the child constructor (`sub:submit`) to be triggered from there.
 
 
 ### Comparison
@@ -377,7 +378,7 @@ For both React and Angular2, **communication is intimately tied to rendering**. 
 
 As expected **CycleJS** is an odd bird. The DOM nodes are method calls (granted, [we could use JSX here](http://cycle.js.org/getting-started.html)), and the child is a stream event.
 
-```
+```javascript
 div([
   input('.field', {props:{value: state.field}}),
   confirmvtree,
@@ -389,12 +390,12 @@ The setup for the child is somewhere else entirely. Communication is done purely
 
 If we look at **Choo** it seems to fall somewhere inbetween CycleJS and the others; we set up the child as we render it, but we do it through an explicit method call:
 
-```
-<div>
+```javascript
+`<div>
   <input value=${state.sub.field} oninput=${onChangeHandler} />
   ${confirm(state, !state.sub.field, send)}
   <p>Submitted value: ${state.sub.submission}</p>
-</div>
+</div>`
 ```
 
 Child to parent communication is done through the all-purpose `send` function instead of by specific callbacks/streams as in React/Angular2.
@@ -431,7 +432,7 @@ What corresponds to *props* in React are simply instance variables prefixed with
 
 In **CycleJS**, a map of the component state can be found in the seed for the `fold` (elsewhere often called `reduce`) call in the `model` method:
 
-```
+```javascript
 // In the Confirm component
 action$.fold((s,action)=> {
   switch(action){
@@ -452,7 +453,7 @@ Since we boil down all outside input from the `intent` function to a single stat
 
 Finally in **Choo**, the state is explicitly defined inside the object passed to `app.model`:
 
-```
+```javascript
 // In the Confirm component
 app.model({
   state: { status: 'waiting' },
@@ -522,7 +523,7 @@ class Submission {
 
 Again, **CycleJS** is just radically different. Input and output is fully contained in the `sources` and `sinks`.
 
-```
+```javascript
 const Confirm = sources=> {
   const action$ = intent(sources)  
   const state$ = model(action$)
@@ -551,7 +552,7 @@ Although the full code for the CycleJS version is by far the longest of all vers
 
 Finally, in **Choo** the communication is defined in the `effects` and `reducers` props of the `model` objects.
 
-```
+```javascript
 const Confirm = (app,confirmevent)=> {
   app.model({
     // ...other stuff trunkated...
@@ -595,6 +596,6 @@ We hope you've found this comparison useful! Articles like this can easily becom
 
 Looking forward, I (David) am continually smitten with CycleJS, but recognize that it is still... well, impractical, to use it for bigger things. The Choo model is intriguing - it feels like React+Redux, but somehow more explicit and clear. Angular2 feels like a clumsy React, although still way more streamlined than Angular 1. And finally, when we look at these four implementations, I find it hard to not recognize the simplicity of the React model. 
 
-What about you Mattias?
+Mattias' opinion:
 
-
+Having never written any CycleJS myself, the code for that implementation pretty much only made my head hurt in the same way as reading the word 'monad' always does. That said, seeing Davids fascination with it I might have to commit some time to get into CycleJS. Other than that I can only echo Davids opinions on the other frameworks: big ol' Angular2 doesn't do it for me and React is just so fresh, so clean (so fresh and so clean, clean). Choo is as previously stated a lot like a React+Redux app in the way state and communication is handled, and maybe because of this it doesn't feel as fitting as React does for the simple application implemented in this post. 
