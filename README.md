@@ -1,6 +1,6 @@
 ### The premise
 
-In this post we will compare how loosely coupled composition is done in [React]() [Angular2]() [Choo]() and [Cycle](). The setup is similar to the TodoMVC project, meaning we will implement the same application in all frameworks. Our app is however much smaller in scope than TodoMVC, and focused on the aspect of composition.
+In this post we will compare how loosely coupled composition is done in [React](https://facebook.github.io/react/) [Angular2](https://angular.io) [Choo](https://github.com/yoshuawuyts/choo) and [Cycle](http://cycle.js.org/). The setup is similar to the TodoMVC project, meaning we will implement the same application in all frameworks. Our app is however much smaller in scope than TodoMVC, and focused on the aspect of composition.
 
 I (David) wrote this in collaboration with the talented fellow JS-nerd [Mattias](), who wrote the Choo version and got me interested in that framework. I hope to lure him into doing more writing here in the future!
 
