@@ -1,0 +1,11 @@
+digraph {
+  rankdir = LR
+  bgcolor = transparent
+  app -> constructor
+  other -> constructor
+  constructor -> renderer
+  constructor [shape=box]
+  app [label="app\ninstance"]
+  other [label="other\ndata"]
+  renderer [label="component\nrenderer"]
+}

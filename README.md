@@ -276,7 +276,13 @@ If CycleJS is the most exotic of our four frameworks, Choo is definitely the new
 
 In Choo it is common to have an app-wide `model`, very similar to Redux' role in React. But according to our self-imposed rules the components should be stand-alone and reusable, and so must contain their own model definitions! We accomplish this by defining the components in constructors which you pass the `app` object to, so each component can register the model parts they need.
 
-A Choo `model` definition consists of `state`, `reducers` to manipulate that state, and `effects` for side effects. If the optonal `namespace` property is set the reducers and effects can only access the state within its own model to provide, as the documentation puts it, 'sturdiness'. The actual component is then just a pure function that receives the application `state`, a `send` method for triggering effects and reducers, and whatever else you want to pass in. The component function returns DOM nodes for rendering, but unlike the other three frameworks Choo does not use virtual DOM nodes, but instead uses [morphdom](https://github.com/patrick-steele-idem/morphdom) to diff real DOM nodes. 
+![choo constr](img/chooconstr.svg)
+
+A Choo `model` definition consists of `state`, `reducers` to manipulate that state, and `effects` for side effects. If the optional `namespace` property is set the reducers and effects can only access the state within its own model to provide, as the documentation puts it, 'sturdiness'.
+
+The actual component is then just a pure function that receives the application `state`, a `send` method for triggering effects and reducers, and whatever else you want to pass in. The component function returns DOM nodes for rendering, but unlike the other three frameworks Choo does not use virtual DOM nodes, but instead uses [morphdom](https://github.com/patrick-steele-idem/morphdom) to diff real DOM nodes. 
+
+![choo render](img/choorender.svg)
 
 Note that we are using Choo version `2.3.1`, but `3.0.0` [just came out](https://github.com/yoshuawuyts/choo/blob/master/CHANGELOG.md#300). We'll hopefully take a look at what has changed in an upcoming, all-choo post!
 

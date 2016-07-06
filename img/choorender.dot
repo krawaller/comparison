@@ -1,0 +1,9 @@
+digraph {
+  rankdir = LR
+  bgcolor = transparent
+
+  state -> renderer
+  send -> renderer
+  renderer -> DOM
+  renderer [label="component\nrenderer",shape=box]
+}
