@@ -1,6 +1,6 @@
 ### The premise
 
-In this post we will compare how loosely coupled composition is done in [React](https://facebook.github.io/react/) [Angular2](https://angular.io) [Choo](https://github.com/yoshuawuyts/choo) and [Cycle](http://cycle.js.org/). The setup is similar to the TodoMVC project, meaning we will implement the same application in all frameworks. Our app is however much smaller in scope than TodoMVC, and focused on the aspect of composition.
+In this post we will compare how loosely coupled composition is done in [React](https://facebook.github.io/react/), [Angular2](https://angular.io), [Choo](https://github.com/yoshuawuyts/choo) and [Cycle](http://cycle.js.org/). The setup is similar to the TodoMVC project, meaning we will **implement the same application in all frameworks**. Our app is however much smaller in scope than TodoMVC, and focused on the aspect of composition.
 
 I (David) wrote this in collaboration with the talented fellow JS-nerd [Mattias](), who wrote the Choo version and got me interested in that framework. I hope to lure him into doing more writing here in the future!
 
@@ -77,7 +77,7 @@ The `status` of the button is kept in state, while whether or not we're `disable
 ```typescript
 let Submission = React.createClass({
   getInitialState: ()=> ({submission:'',field:''}),
-  onConfirm() { this.setState({submission:this.state.field,field:''}) },
+  onConfirm() { this.setState({submission:this.state.field, field:''}) },
   onChange(e) { this.setState({field:e.target.value}) },
   render() { return (
     <div>
@@ -171,7 +171,8 @@ We will implement our app following the [Model-View-Intent](http://cycle.js.org/
 1.   A component receives `sources` from the parent or the root renderer
 1.   The `intent` function translates these to a stream of `actions`
 1.   The `actions` are sent to the `model` function who returns the component `state`
-1.   Finally that `state` is given to the `view` function which translates it to **virtual DOM**, often called `vtree`
+1.   That `state` is given to the `view` function which translates it to **virtual DOM**, often called `vtree`
+1.   Finally we return the `vtree` as part of the `sinks`, maybe coupled with other stuff from `actions` and `state` that are of interest to the outside world.
 
 The Webpackbin for this implementation can be found at [http://www.webpackbin.com/NJD02H4L-](http://www.webpackbin.com/NJD02H4L-).
 
@@ -274,6 +275,8 @@ Choo is a new and tiny framework, but bla bla bla Mattias, go! :D
 In Choo it is common to have an app-wide `model`, very similar to Redux' role in React. But according to our self-imposed rules the components should be stand-alone and reusable, and so must contain their own model definitions! We accomplish this by defining the components in constructors which you pass the `app` object to, so each component can register the model parts they need.
 
 A Choo `model` definition consists of `state`, `reducers` to manipulate that state, and `effects` for side effects. The actual component is then just a pure function that receives the application `state`, a `send` method for triggering effects and reducers, and whatever else you want to pass in. The component function returns virtual DOM for rendering.
+
+Note that we are using Choo version `2.3.1`, but `3.0.0` [just came out](https://github.com/yoshuawuyts/choo/blob/master/CHANGELOG.md#300). We'll hopefully take a look at what has changed in an upcoming, all-choo post!
 
 #### The `Confirm` component in Choo
 
