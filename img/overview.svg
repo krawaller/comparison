@@ -28,8 +28,7 @@
 </g>
 <!-- field&#45;&gt;disabled -->
 <g id="edge1" class="edge"><title>field&#45;&gt;disabled</title>
-<path fill="none" stroke="black" d="M113.517,-88C119.672,-88 125.943,-88 132.061,-88"/>
-<polygon fill="black" stroke="black" points="132.287,-91.5001 142.287,-88 132.287,-84.5001 132.287,-91.5001"/>
+<path fill="none" stroke="black" d="M113.626,-88C123.243,-88 133.14,-88 142.287,-88"/>
 </g>
 <!-- submitted -->
 <g id="node2" class="node"><title>submitted</title>
@@ -53,8 +52,7 @@
 </g>
 <!-- bogus&#45;&gt;submit -->
 <g id="edge3" class="edge"><title>bogus&#45;&gt;submit</title>
-<path fill="none" stroke="black" d="M250.009,-34C242.354,-34 234.252,-34 226.428,-34"/>
-<polygon fill="black" stroke="black" points="226.223,-30.5001 216.223,-34 226.223,-37.5001 226.223,-30.5001"/>
+<path fill="none" stroke="black" d="M250.009,-34C238.952,-34 226.962,-34 216.223,-34"/>
 </g>
 <!-- disabled&#45;&gt;status -->
 <g id="edge2" class="edge"><title>disabled&#45;&gt;status</title>

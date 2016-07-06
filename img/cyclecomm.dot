@@ -1,0 +1,16 @@
+digraph {
+  rankdir = LR
+  bgcolor = transparent
+  Submission -> disabled -> Confirm [color=transparent]
+  Submission -> disabled -> Confirm [color=transparent]
+  Submission -> disabled [dir=none]
+  disabled -> Confirm
+  Confirm -> confirm [dir=none]
+  confirm -> Submission
+  Confirm -> confirm -> Submission [color=transparent]
+  Confirm -> confirm -> Submission [color=transparent]
+  {rank=same;disabled,confirm}
+  Submission,Confirm [shape=box]
+  disabled [label="disabled$"]
+  confirm [label="submit$"]
+}

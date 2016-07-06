@@ -11,10 +11,10 @@ digraph {
     status
     bogus
   }
-  field -> disabled [ltail=cluster_Submission]
+  field -> disabled [ltail=cluster_Submission, dir=none]
   disabled -> status [lhead=cluster_Confirm]
 
-  bogus -> submit [ltail=cluster_Confirm,constraint=none]
+  bogus -> submit [ltail=cluster_Confirm,constraint=none, dir=none]
   submit -> submitted [lhead=cluster_Submission]
 
   {rank=same; disabled, submit}
